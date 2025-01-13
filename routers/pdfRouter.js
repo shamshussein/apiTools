@@ -6,7 +6,7 @@ const fs = require("fs");
 const upload = multer({ dest: "uploads/" });
 const router = express.Router();
 
-router.post("/merge", upload.array("pdfs", 10), async (req, res) => {
+router.post("/merge", upload.array("pdfs", 2), async (req, res) => {
   try {
     const pdfPaths = req.files.map((file) => file.path);
     const mergedPdf = await mergePDFs(pdfPaths);

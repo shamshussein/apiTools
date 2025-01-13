@@ -1,74 +1,34 @@
 import React, { useState } from "react";
-import { downloadVideo, convertToAudio, uploadWithRateLimit, mergePdfs } from "../api/apiRequests";
+import { handleDownload, handleConvert, handleUpload, handleGeneratePassword, handleMergePdfs } from "../api/response";
 
 const ApiForm = () => {
-  const [videoUrl, setVideoUrl] = useState("");
-  const [file, setFile] = useState(null);
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
+const [videoUrl, setVideoUrl] = useState("");
+const [convertFile, setConvertFile] = useState(null); 
+const [uploadFile, setUploadFile] = useState(null);
 
-  const handleDownload = async () => {
-    setLoading(true);
-    setResponse("");
-    try {
-      const data = await downloadVideo(videoUrl);
-      const url = window.URL.createObjectURL(new Blob([data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "video.mp4");
-      document.body.appendChild(link);
-      link.click();
-      setResponse("Video downloaded successfully.");
-    } catch (err) {
-      setResponse(err.response?.data?.error || "Error downloading video.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const [generateLoading, setGenerateLoading] = useState(false);
+const [mergeloading, setMergeLoading] = useState(false);
+const [downloadLoading, setDownloadLoading] = useState(false);
+const [convertLoading, setConvertLoading] = useState(false);
+const [uploadLoading, setUploadLoading] = useState(false);
 
-  const handleConvert = async () => {
-    setLoading(true);
-    setResponse("");
-    try {
-      if (!file) throw new Error("Please upload a video file.");
-      const data = await convertToAudio(file);
-      const url = window.URL.createObjectURL(new Blob([data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "audio.mp3");
-      document.body.appendChild(link);
-      link.click();
-      setResponse("Audio conversion successful.");
-    } catch (err) {
-      setResponse(err.response?.data?.error || "Error converting video to audio.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const [mergeResponse, setMergeResponse] = useState("");
+const [generatedResponse, setGenerateResponse] = useState("");
+const [downloadResponse, setDownloadResponse] = useState("");
+const [convertResponse, setConvertResponse] = useState("");
+const [uploadResponse, setUploadResponse] = useState("");
 
-  const handleUpload = async () => {
-    setLoading(true);
-    setResponse("");
-    try {
-      if (!file) throw new Error("Please upload a file.");
-      const data = await uploadWithRateLimit(file);
-      setResponse(`File uploaded successfully. Server response: ${JSON.stringify(data)}`);
-    } catch (err) {
-      if (err.response?.status === 429) {
-        setResponse("Rate limit exceeded. Please try again later.");
-      } else {
-        setResponse(err.response?.data?.error || "Error uploading file.");
-      }
-    } finally {
-      setLoading(false);
-    }
+const [pdfFiles, setPdfFiles] = useState([]);
+const [password, setPassword] = useState("");
+
+  const handlePdfFileChange = (e) => {
+    setPdfFiles([...e.target.files]);
   };
 
   return (
     <div className="container mt-5">
       <h2 className="mb-4">API Interaction Form</h2>
 
-      {/* Video Download */}
       <div className="mb-3">
         <label className="form-label">YouTube Video URL</label>
         <input
@@ -77,93 +37,95 @@ const ApiForm = () => {
           placeholder="Enter video URL"
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
-          disabled={loading}
+          disabled={downloadLoading}
         />
         <button
           className="btn btn-primary mt-2"
-          onClick={handleDownload}
-          disabled={loading || !videoUrl}
+          onClick={() => handleDownload(videoUrl, setDownloadResponse, setDownloadLoading)}
+          disabled={downloadLoading || !videoUrl}
         >
-          {loading ? "Downloading..." : "Download Video"}
+          {downloadLoading ? "Downloading..." : "Download Video"}
         </button>
+        {downloadResponse && <div className="alert alert-info mt-2">{downloadResponse}</div>}
       </div>
 
-      {/* Video to Audio Conversion */}
       <div className="mb-3">
         <label className="form-label">Upload Video File</label>
         <input
           type="file"
           className="form-control"
           accept="video/*"
-          onChange={(e) => setFile(e.target.files[0])}
-          disabled={loading}
+          onChange={(e) => setConvertFile(e.target.files[0])}
+          disabled={convertLoading }
         />
         <button
           className="btn btn-success mt-2"
-          onClick={handleConvert}
-          disabled={loading || !file}
+          onClick={() => handleConvert(convertFile, setConvertResponse, setConvertLoading)}
+          disabled={convertLoading  || !convertFile}
         >
-          {loading ? "Converting..." : "Convert to Audio"}
+          {convertLoading  ? "Converting..." : "Convert to Audio"}
         </button>
+        {convertResponse && <div className="alert alert-info mt-2">{convertResponse}</div>}
       </div>
 
-      {/* Rate Limited Upload */}
       <div className="mb-3">
         <label className="form-label">Rate Limited File Upload</label>
         <input
           type="file"
           className="form-control"
-          onChange={(e) => setFile(e.target.files[0])}
-          disabled={loading}
+          onChange={(e) => setUploadFile(e.target.files[0])}
+          disabled={uploadLoading}
         />
         <button
           className="btn btn-warning mt-2"
-          onClick={handleUpload}
-          disabled={loading || !file}
+          onClick={() => handleUpload(uploadFile, setUploadResponse, setUploadLoading)}
+          disabled={uploadLoading || !uploadFile}
         >
-          {loading ? "Uploading..." : "Upload File"}
+          {uploadLoading ? "Uploading..." : "Upload File"}
         </button>
+        {uploadResponse && <div className="alert alert-info mt-2">{uploadResponse}</div>}
       </div>
-      
-      {/* Password Generator */}
+
       <div className="mb-3">
         <label className="form-label">Generate Password</label>
+        <button
+          className="btn btn-success mt-2"
+          onClick={() => handleGeneratePassword(setPassword, setGenerateResponse, setGenerateLoading)}
+          disabled={generateLoading}
+        >
+          {generateLoading ? "Generating..." : "Generate Password"}
+        </button>
+        {password && (
+          <input
+            type="text"
+            className="form-control mt-2"
+            value={password}
+            readOnly
+          />
+        )}
+      {generatedResponse && <div className="alert alert-info mt-4">{generatedResponse}</div>}
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Select PDFs to Merge (Max 2)</label>
         <input
-          type="password"
+          type="file"
           className="form-control"
-        //   onChange={(e) => setFile(e.target.files[0])}
-          disabled={loading}
+          accept=".pdf"
+          multiple
+          onChange={handlePdfFileChange}
+          disabled={mergeloading}
         />
         <button
           className="btn btn-success mt-2"
-        //   onClick={handleConvert}
-          disabled={loading || !file}
+          onClick={() => handleMergePdfs(pdfFiles, setMergeResponse, setMergeLoading)}
+          disabled={mergeloading || pdfFiles.length !== 2}
         >
-          {loading ? "Generating..." : "Generate Password"}
+          {mergeloading ? "Merging..." : "Merge PDFs"}
         </button>
+        {mergeResponse && <div className="alert alert-info mt-4">{mergeResponse}</div>}
       </div>
 
-        {/* PDF Merger */}
-        <div className="mb-3">
-        <label className="form-label">Select PDFs to Merge (Max 2)</label>
-        <input
-            type="file" multiple
-            className="form-control"
-            accept=".pdf"
-            // onChange={handleFileChange}
-            disabled={loading}
-        />
-        <button
-            className="btn btn-success mt-2"
-            // onClick={handleMerge}
-            disabled={loading || !file}
-        >
-            {loading ? "Merging..." : "Merge PDFs"}
-        </button>
-    </div>
-
-      {/* Response Section */}
-      {response && <div className="alert alert-info mt-4">{response}</div>}
     </div>
   );
 };
