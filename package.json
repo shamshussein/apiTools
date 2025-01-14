@@ -19,6 +19,7 @@
     "mongoose": "^8.9.4",
     "multer": "^1.4.5-lts.1",
     "pdf-lib": "^1.17.1",
+    "shortid": "^2.2.16",
     "youtube-dl-exec": "^3.0.12"
   },
   "devDependencies": {

@@ -6,6 +6,8 @@ const converterRoutes = require("./routers/converterRouter");
 const pdfRoutes = require("./routers/pdfRouter");
 const passwordRoutes = require("./routers/passwordRouter");
 const uploadRouter = require("./routers/uploadRouter");
+const urlRouter = require("./routers/urlShortenerRouter");
+
 const cors = require("cors");
 
 const DB = require("./database").connectDB;
@@ -13,13 +15,14 @@ const DB = require("./database").connectDB;
 DB();
 
 const app = express();
+app.use(express.json());
 
 app.use(cors({
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   }));
-  
-app.use(express.json());
+
+app.use("/url", urlRouter);
 app.use("/", uploadRouter);
 app.use("/youtube", youtubeRoutes);
 app.use("/", converterRoutes);

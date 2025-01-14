@@ -1,4 +1,4 @@
-import { downloadVideo, convertToAudio, uploadWithRateLimit, generatePassword, mergePdfs } from "../api/apiRequests";
+import { downloadVideo, convertToAudio, uploadWithRateLimit, generatePassword, mergePdfs, shortenUrl } from "../api/apiRequests";
 
 export const handleDownload = async (videoUrl, setDownloadResponse, setDownloadLoading) => {
     setDownloadLoading(true);
@@ -91,5 +91,23 @@ export const handleMergePdfs = async (pdfFiles, setMergeResponse, setMergeLoadin
     setMergeResponse(err.response?.data?.error || "Error merging PDFs.");
   } finally {
     setMergeResponse(false);
+  }
+};
+
+export const handleShortenUrl = async (originalUrl, setShortUrl, setUrlError, setUrlLoading) => {
+  console.log("Original URL:", originalUrl); 
+  setUrlLoading(true);
+  setShortUrl("");
+  setUrlError("");
+  
+  try {
+    const response = await shortenUrl(originalUrl);
+    console.log("Response:", response); 
+    setShortUrl(response.shortUrl);
+  } catch (error) {
+    console.error("Error shortening URL:", error);  
+    setUrlError(error.response?.data?.error || "Error shortening URL.");
+  } finally {
+    setUrlLoading(false);
   }
 };

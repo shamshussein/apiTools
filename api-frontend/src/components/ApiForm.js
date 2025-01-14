@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { handleDownload, handleConvert, handleUpload, handleGeneratePassword, handleMergePdfs } from "../api/response";
+import { handleDownload, handleConvert, handleUpload, handleGeneratePassword, handleMergePdfs, handleShortenUrl } from "../api/response";
 
 const ApiForm = () => {
 const [videoUrl, setVideoUrl] = useState("");
@@ -21,10 +21,15 @@ const [uploadResponse, setUploadResponse] = useState("");
 const [pdfFiles, setPdfFiles] = useState([]);
 const [password, setPassword] = useState("");
 
+  const [originalUrl, setOriginalUrl] = useState("");
+  const [shortUrl, setShortUrl] = useState("");
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState("");
+
   const handlePdfFileChange = (e) => {
     setPdfFiles([...e.target.files]);
   };
-
+  
   return (
     <div className="container mt-5">
       <h2 className="mb-4">API Interaction Form</h2>
@@ -124,8 +129,35 @@ const [password, setPassword] = useState("");
           {mergeloading ? "Merging..." : "Merge PDFs"}
         </button>
         {mergeResponse && <div className="alert alert-info mt-4">{mergeResponse}</div>}
-      </div>
 
+      </div>
+            <div className="mb-3">
+        <label className="form-label">URL Shortener</label>
+        <input
+          type="url"
+          className="form-control"
+          placeholder="Enter URL to shorten"
+          value={originalUrl}
+          onChange={(e) => setOriginalUrl(e.target.value)}
+          disabled={urlLoading}
+        />
+        <button
+          className="btn btn-primary mt-2"
+          onClick={() => handleShortenUrl(originalUrl, setShortUrl, setUrlError, setUrlLoading)}
+          disabled={urlLoading || !originalUrl}
+        >
+          {urlLoading ? "Shortening..." : "Shorten URL"}
+        </button>
+        {shortUrl && (
+          <div className="alert alert-info mt-2">
+            Shortened URL:{" "}
+            <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+              {shortUrl}
+            </a>
+          </div>
+        )}
+        {urlError && <div className="alert alert-danger mt-2">{urlError}</div>}
+      </div>
     </div>
   );
 };

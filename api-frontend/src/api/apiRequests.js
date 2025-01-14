@@ -43,3 +43,8 @@ export const uploadWithRateLimit = async (file) => {
   
     return response.data;
   };
+
+export const shortenUrl = async (originalUrl) => {
+    const response = await axios.post("http://localhost:5000/url/shorten", { originalUrl });
+    return response.data;
+};
