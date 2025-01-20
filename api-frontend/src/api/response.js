@@ -91,6 +91,8 @@ export const handleMergePdfs = async (pdfFiles, setMergeResponse, setMergeLoadin
     setMergeResponse(err.response?.data?.error || "Error merging PDFs.");
   } finally {
     setMergeResponse(false);
+    setMergeLoading(false);
+
   }
 };
 
