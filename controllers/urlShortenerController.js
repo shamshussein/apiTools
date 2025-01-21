@@ -12,7 +12,7 @@ const createShortUrl = async (req, res) => {
     if (!url) {
       url = await Url.create({ originalUrl });
     }
-    res.status(201).json({ originalUrl: url.originalUrl, shortUrl: `${req.headers.host}/${url.shortId}` });
+    res.status(201).json({ originalUrl: url.originalUrl, shortUrl: `${'http://'}${req.headers.host}/${url.shortId}` });
   } catch (err) {
     console.error("Error creating short URL:", err.message);
     res.status(500).json({ error: "Server error. Try again later." });

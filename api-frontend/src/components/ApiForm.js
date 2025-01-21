@@ -151,7 +151,7 @@ const [password, setPassword] = useState("");
         {shortUrl && (
           <div className="alert alert-info mt-2">
             Shortened URL:{" "}
-            <a href={shortUrl} target="_blank" rel="noopener noreferrer">
+            <a href={originalUrl} target="_blank" rel="noopener noreferrer">
               {shortUrl}
             </a>
           </div>
