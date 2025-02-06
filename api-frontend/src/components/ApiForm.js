@@ -92,7 +92,7 @@ const [password, setPassword] = useState("");
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Generate Password</label>
+        {/* <label className="form-label">Generate Password</label> */}
         <button
           className="btn btn-success mt-2"
           onClick={() => handleGeneratePassword(setPassword, setGenerateResponse, setGenerateLoading)}
